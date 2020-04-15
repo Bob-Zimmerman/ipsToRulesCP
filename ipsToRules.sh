@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # TODO:
 # • Add support for networks, not just hosts.
-printUsage()
-	{
+printUsage() {
 	echo "Usage:"
 	echo "$0 [-d] [-h] [-J file] [-j file] [-c file] [-O] <list>"
 	echo "Default output is pretty-print JSON to STDOUT, suitable for output redirection."
@@ -109,82 +108,69 @@ dereferenceObjectUID() {
 	objectUIDToFind=$1
 	debug1 "dereferenceObjectUID: Dereferencing ${objectUIDToFind}."
 	foundObject="$(mgmt_cli -s sessionFile_$CMA.txt \
-	--format json \
-	show object \
-	uid "${objectUIDToFind}" \
-	details-level full)"
+		--format json \
+		show object \
+		uid "${objectUIDToFind}" \
+		details-level full)"
 
 	type="$(echo "${foundObject}" | jq -c '.object.type' | sed 's#"##g')"
 	case "${type}" in
+	case "${type}" in
 	application-site)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type}")#\n"
 		;;
 	application-site-category)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type}")#\n"
 		;;
 	application-site-group)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
 		;;
 	CpmiClusterMember)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.[\"ipv4-address\"]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
 		;;
 	CpmiGatewayCluster)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.[\"ipv4-address\"]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
 		;;
 	host)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.[\"ipv4-address\"]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
 		;;
 	network)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,subnet4:.subnet4,subnetMask:.[\"subnet-mask\"]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,subnet4:.subnet4,subnetMask:.\"subnet-mask\"}")#\n"
 		;;
 	group)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
 		;;
 	service-icmp)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type}")#\n"
 		;;
 	service-tcp)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,port:.port}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
 		;;
 	service-udp)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,port:.port}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
 		;;
 	service-group)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
 		;;
 	RulebaseAction)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object.name")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object.name")#\n"
 		;;
 	CpmiAnyObject)
-		printf "s#${objectUIDToFind}#%s#\n" \
-			$(echo "${foundObject}" \
-			| jq -c ".object|{name:.name}")
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name}")#\n"
 		;;
 	*)
 		echo "ERROR: Unhandled type: ${type} for object ${objectUIDToFind}" >&2
@@ -263,22 +249,22 @@ masterOutput() {
 		fi
 	if [ "${outFileQDCSV}" != "" ]; then
 		debug1 "Emitting quote-delimited CSV."
-		echo "${ruleJSON}" | jq -c "$csvRuleRepresentation" |\
-		sed 's#"##g' |\
-		sed 's#^{#"#' |\
-		sed -E 's#,enabled:(true|false),name:#","\1","#' |\
-		sed 's#,comments:#","#' |\
-		sed 's#,source:\[#","#' |\
-		sed 's#\],sourceNegate:#","#' |\
-		sed 's#,destination:\[#","#' |\
-		sed 's#\],destinationNegate:#","#' |\
-		sed 's#,service:\[#","#' |\
-		sed 's#\],serviceNegate:#","#' |\
-		sed 's#,action:#","#' |\
-		sed 's#}$#"#' |\
-		sed 's#\\n#~#g' |\
-		sed -E 's#([^"]),([^"])#\1~\2#g' |\
-		tr '~' '\n' \
+		echo "${ruleJSON}" | jq -c "$csvRuleRepresentation" \
+		| sed 's#"##g' \
+		| sed 's#^{#"#' \
+		| sed -E 's#,enabled:(true|false),name:#","\1","#' \
+		| sed 's#,comments:#","#' \
+		| sed 's#,source:\[#","#' \
+		| sed 's#\],sourceNegate:#","#' \
+		| sed 's#,destination:\[#","#' \
+		| sed 's#\],destinationNegate:#","#' \
+		| sed 's#,service:\[#","#' \
+		| sed 's#\],serviceNegate:#","#' \
+		| sed 's#,action:#","#' \
+		| sed 's#}$#"#' \
+		| sed 's#\\n#~#g' \
+		| sed -E 's#([^"]),([^"])#\1~\2#g' \
+		| tr '~' '\n' \
 		>> "${outFileQDCSV}"
 		fi
 	if [ "${stdoutPrettyJSON}" -eq 1 ]; then
