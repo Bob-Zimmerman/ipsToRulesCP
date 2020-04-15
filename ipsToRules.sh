@@ -115,7 +115,6 @@ dereferenceObjectUID() {
 
 	type="$(echo "${foundObject}" | jq -c '.object.type' | sed 's#"##g')"
 	case "${type}" in
-	case "${type}" in
 	application-site)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type}")#\n"
@@ -136,6 +135,10 @@ dereferenceObjectUID() {
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
 		;;
+	CpmiHostCkp)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		;;
 	host)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
@@ -143,6 +146,10 @@ dereferenceObjectUID() {
 	network)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,subnet4:.subnet4,subnetMask:.\"subnet-mask\"}")#\n"
+		;;
+	address-range)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4AddressFirst:.\"ipv4-address-first\",ipv4AddressLast:.\"ipv4-address-last\"}")#\n"
 		;;
 	group)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
@@ -160,6 +167,10 @@ dereferenceObjectUID() {
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
 		;;
+	service-other)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipProtocol:.\"ip-protocol\"}")#\n"
+		;;
 	service-group)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
@@ -169,6 +180,10 @@ dereferenceObjectUID() {
 			| jq -c ".object.name")#\n"
 		;;
 	CpmiAnyObject)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name}")#\n"
+		;;
+	Internet)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name}")#\n"
 		;;
