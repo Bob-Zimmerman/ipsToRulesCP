@@ -12,6 +12,9 @@ printUsage() {
 	echo -e "\t-c file\tWrite quote-delimited CSV output to <file>."
 	echo -e "\t-O\tWrite pretty-print JSON output to STDOUT."
 	echo -e "\tlist\tList of IPs to search for, separated by spaces."
+	echo ""
+	echo "Example:"
+	echo "$0 -J myAppPretty.json -j myApp.json -c myApp.csv 10.64.32.16 10.20.30.40"
 	}
 
 jqRuleRepresentation="{domainUID:.domain.uid,
