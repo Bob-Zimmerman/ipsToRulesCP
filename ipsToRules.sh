@@ -42,6 +42,8 @@ service:[.service[].name],
 serviceNegate:.serviceNegate,
 action:.action}"
 
+unitSeparator=$(awk 'BEGIN {print "\037"}')
+
 
 
 debug1() {
@@ -116,89 +118,89 @@ dereferenceObjectUID() {
 	type="$(echo "${foundObject}" | jq -c '.object.type' | sed 's#"##g')"
 	case "${type}" in
 	address-range)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4AddressFirst:.\"ipv4-address-first\",ipv4AddressLast:.\"ipv4-address-last\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4AddressFirst:.\"ipv4-address-first\",ipv4AddressLast:.\"ipv4-address-last\"}")${unitSeparator}\n"
 		;;
 	application-site)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type}")${unitSeparator}\n"
 		;;
 	application-site-category)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type}")${unitSeparator}\n"
 		;;
 	application-site-group)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,members:[.members[]|.uid]}")${unitSeparator}\n"
 		;;
 	CpmiAnyObject)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments}")${unitSeparator}\n"
 		;;
 	CpmiClusterMember)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
 	CpmiGatewayCluster)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
 	CpmiHostCkp)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
 	group)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,members:[.members[]|.uid]}")${unitSeparator}\n"
 		;;
 	group-with-exclusion)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,include:[.include.uid],except:[.except.uid]}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,include:[.include.uid],except:[.except.uid]}")${unitSeparator}\n"
 		;;
 	host)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
 	Internet)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments}")${unitSeparator}\n"
 		;;
 	network)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,subnet4:.subnet4,subnetMask:.\"subnet-mask\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,subnet4:.subnet4,subnetMask:.\"subnet-mask\"}")${unitSeparator}\n"
 		;;
 	RulebaseAction)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object.name")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object.name")${unitSeparator}\n"
 		;;
 	service-dce-rpc)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type}")${unitSeparator}\n"
 		;;
 	service-group)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,members:[.members[]|.uid]}")${unitSeparator}\n"
 		;;
 	service-icmp)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type}")${unitSeparator}\n"
 		;;
 	service-other)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipProtocol:.\"ip-protocol\"}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipProtocol:.\"ip-protocol\"}")${unitSeparator}\n"
 		;;
 	service-tcp)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,port:.port}")${unitSeparator}\n"
 		;;
 	service-udp)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,port:.port}")${unitSeparator}\n"
 		;;
 	*)
 		echo "ERROR: Unhandled type: ${type} for object ${objectUIDToFind}" >&2
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type}")#\n"
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type}")${unitSeparator}\n"
 		;;
 	esac
 	}
@@ -232,7 +234,7 @@ findRulesUsingIPs() {
 		debug2 "Found ${!ipToFindUIDs[@]} UIDs: ${ipToFindUIDs[@]}"
 		objectUIDs=( "${objectUIDs[@]}" "${ipToFindUIDs[@]}" )
 		done
-	objectUIDs=( $(echo "${objectUIDs[@]}" | sed 's# #\n#g' | sort -u) )
+	objectUIDs=( $(echo "${objectUIDs[@]}" | tr " " "\n" | sort -u) )
 	if [ "${ipsToRulesDebug}" -ge 2 ]; then
 		debug2 "objectUIDs now contains ${#objectUIDs[@]} items:"
 		for element in "${objectUIDs[@]}"; do echo "$element" >&2; done
@@ -247,7 +249,7 @@ findRulesUsingIPs() {
 		debug2 "Found ${!objectRuleUIDs[@]} UIDs: ${objectRuleUIDs[@]}"
 		ruleUIDs=( "${ruleUIDs[@]}" "${objectRuleUIDs[@]}" )
 		done
-	ruleUIDs=( $(echo "${ruleUIDs[@]}" | sed 's# #\n#g' | sort -u) )
+	ruleUIDs=( $(echo "${ruleUIDs[@]}" | tr " " "\n" | sort -u) )
 	if [ "${ipsToRulesDebug}" -ge 2 ]; then
 		debug2 "ruleUIDs now contains ${#ruleUIDs[@]} items:"
 		for element in "${ruleUIDs[@]}"; do echo "$element" >&2; done
@@ -275,20 +277,20 @@ masterOutput() {
 	if [ "${outFileQDCSV}" != "" ]; then
 		debug1 "Emitting quote-delimited CSV."
 		echo "${ruleJSON}" | jq -c "$csvRuleRepresentation" \
-		| sed 's#"##g' \
-		| sed 's#^{#"#' \
-		| sed -E 's#,enabled:(true|false),name:#","\1","#' \
-		| sed 's#,comments:#","#' \
-		| sed 's#,source:\[#","#' \
-		| sed 's#\],sourceNegate:#","#' \
-		| sed 's#,destination:\[#","#' \
-		| sed 's#\],destinationNegate:#","#' \
-		| sed 's#,service:\[#","#' \
-		| sed 's#\],serviceNegate:#","#' \
-		| sed 's#,action:#","#' \
-		| sed 's#}$#"#' \
-		| sed 's#\\n#~#g' \
-		| sed -E 's#([^"]),([^"])#\1~\2#g' \
+		| sed "s${unitSeparator}\"${unitSeparator}${unitSeparator}g" \
+		| sed "s${unitSeparator}^{${unitSeparator}\"${unitSeparator}" \
+		| sed -E "s${unitSeparator},enabled:(true|false),name:${unitSeparator}\",\"\1\",\"${unitSeparator}" \
+		| sed "s${unitSeparator},comments:${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator},source:\[${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator}\],sourceNegate:${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator},destination:\[${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator}\],destinationNegate:${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator},service:\[${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator}\],serviceNegate:${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator},action:${unitSeparator}\",\"${unitSeparator}" \
+		| sed "s${unitSeparator}}\$${unitSeparator}\"${unitSeparator}" \
+		| sed "s${unitSeparator}\\n${unitSeparator}~${unitSeparator}g" \
+		| sed -E "s${unitSeparator}([^\"]),([^\"])${unitSeparator}\1~\2${unitSeparator}g" \
 		| tr '~' '\n' \
 		>> "${outFileQDCSV}"
 		fi
