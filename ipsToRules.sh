@@ -156,6 +156,10 @@ dereferenceObjectUID() {
 		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
+	dns-domain)
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,isSubdomain:.\"is-sub-domain\"}")${unitSeparator}\n"
+		;;
 	group)
 		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,comments:.comments,type:.type,members:[.members[]|.uid]}")${unitSeparator}\n"
