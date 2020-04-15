@@ -187,7 +187,7 @@ dereferenceObjectUID() {
 			| jq -c ".object|{name:.name}")
 		;;
 	*)
-		echo "ERROR: Unhandled type: ${type}" >&2
+		echo "ERROR: Unhandled type: ${type} for object ${objectUIDToFind}" >&2
 		;;
 	esac
 	}
