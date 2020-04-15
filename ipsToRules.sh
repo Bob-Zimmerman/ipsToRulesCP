@@ -145,6 +145,10 @@ dereferenceObjectUID() {
 		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
 		;;
+	CpmiGatewayPlain)
+		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
+		;;
 	CpmiHostCkp)
 		printf "s${unitSeparator}${objectUIDToFind}${unitSeparator}$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,comments:.comments,type:.type,ipv4Address:.\"ipv4-address\"}")${unitSeparator}\n"
