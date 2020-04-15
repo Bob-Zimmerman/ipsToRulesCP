@@ -151,6 +151,10 @@ dereferenceObjectUID() {
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
 		;;
+	group-with-exclusion)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,include:[.include.uid],except:[.except.uid]}")#\n"
+		;;
 	host)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
@@ -166,6 +170,10 @@ dereferenceObjectUID() {
 	RulebaseAction)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object.name")#\n"
+		;;
+	service-dce-rpc)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type}")#\n"
 		;;
 	service-group)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
