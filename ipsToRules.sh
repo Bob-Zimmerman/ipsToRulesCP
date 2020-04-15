@@ -115,6 +115,10 @@ dereferenceObjectUID() {
 
 	type="$(echo "${foundObject}" | jq -c '.object.type' | sed 's#"##g')"
 	case "${type}" in
+	address-range)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipv4AddressFirst:.\"ipv4-address-first\",ipv4AddressLast:.\"ipv4-address-last\"}")#\n"
+		;;
 	application-site)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type}")#\n"
@@ -126,6 +130,10 @@ dereferenceObjectUID() {
 	application-site-group)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
+		;;
+	CpmiAnyObject)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name}")#\n"
 		;;
 	CpmiClusterMember)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
@@ -139,25 +147,37 @@ dereferenceObjectUID() {
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
 		;;
+	group)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
+		;;
 	host)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,ipv4Address:.\"ipv4-address\"}")#\n"
+		;;
+	Internet)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name}")#\n"
 		;;
 	network)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,subnet4:.subnet4,subnetMask:.\"subnet-mask\"}")#\n"
 		;;
-	address-range)
+	RulebaseAction)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipv4AddressFirst:.\"ipv4-address-first\",ipv4AddressLast:.\"ipv4-address-last\"}")#\n"
+			| jq -c ".object.name")#\n"
 		;;
-	group)
+	service-group)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
 		;;
 	service-icmp)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type}")#\n"
+		;;
+	service-other)
+		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
+			| jq -c ".object|{name:.name,type:.type,ipProtocol:.\"ip-protocol\"}")#\n"
 		;;
 	service-tcp)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
@@ -166,26 +186,6 @@ dereferenceObjectUID() {
 	service-udp)
 		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
 			| jq -c ".object|{name:.name,type:.type,port:.port}")#\n"
-		;;
-	service-other)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,ipProtocol:.\"ip-protocol\"}")#\n"
-		;;
-	service-group)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name,type:.type,members:[.members[]|.uid]}")#\n"
-		;;
-	RulebaseAction)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object.name")#\n"
-		;;
-	CpmiAnyObject)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name}")#\n"
-		;;
-	Internet)
-		printf "s#${objectUIDToFind}#$(echo -n "${foundObject}" \
-			| jq -c ".object|{name:.name}")#\n"
 		;;
 	*)
 		echo "ERROR: Unhandled type: ${type} for object ${objectUIDToFind}" >&2
