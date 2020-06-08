@@ -8,10 +8,11 @@ Usage is given right at the top of the script. It also prints the usage if you r
 
 ```[Bob_Zimmerman@MySmartCenter]# ./ipsToRules.sh -h
 Usage:
-./ipsToRules.sh [-d] [-h] [-J file] [-j file] [-c file] [-O] <list>
+./ipsToRules.sh [-d] [-h] [-p port] [-J file] [-j file] [-c file] [-O] <list>
 Default output is pretty-print JSON to STDOUT, suitable for output redirection.
 	-d	Increase debug level, up to twice.
 	-h	Print this usage information.
+	-p port	Specify the port to use for API connections. Default is 443.
 	-J file	Write pretty-print JSON output to <file>.
 	-j file	Write compact JSON output to <file>. One line per rule.
 	-c file	Write quote-delimited CSV output to <file>.

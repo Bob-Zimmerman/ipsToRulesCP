@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # TODO:
-# • Add support for networks, not just hosts.
+# * Add support for networks, not just hosts.
 printUsage() {
 	echo "Usage:"
-	echo "$0 [-d] [-h] [-J file] [-j file] [-c file] [-O] <list>"
+	echo "$0 [-d] [-h] [-p port] [-J file] [-j file] [-c file] [-O] <list>"
 	echo "Default output is pretty-print JSON to STDOUT, suitable for output redirection."
 	echo -e "\t-d\tIncrease debug level, up to twice."
 	echo -e "\t-h\tPrint this usage information."
+	echo -e "\t-p port\tSpecify the port to use for API connections. Default is 443."
 	echo -e "\t-J file\tWrite pretty-print JSON output to <file>."
 	echo -e "\t-j file\tWrite compact JSON output to <file>. One line per rule."
 	echo -e "\t-c file\tWrite quote-delimited CSV output to <file>."
@@ -69,7 +70,8 @@ getRuleUsingUID() {
 	## information.
 	layerUID=$(echo "$1" | jq ".layerUID")
 	ruleUID=$(echo "$1" | jq ".ruleUID")
-	mgmt_cli -s sessionFile_$CMA.txt \
+	mgmt_cli --port "${apiPort}" \
+		-s sessionFile_$CMA.txt \
 		--format json \
 		show access-rule \
 		layer "$layerUID" \
@@ -86,7 +88,8 @@ getRuleUIDsUsingObjectUID() {
 	## You need both the rule UUID and the layer UUID to look up a rule. This
 	## returns them as one line to avoid needing to deal with list member
 	## interleaving or other nonsense. Each rule reference is one list item.
-	mgmt_cli -s sessionFile_$CMA.txt \
+	mgmt_cli --port "${apiPort}" \
+		-s sessionFile_$CMA.txt \
 		--format json \
 		where-used \
 		uid $1 \
@@ -99,7 +102,8 @@ getRuleUIDsUsingObjectUID() {
 getHostUIDsUsingIP() {
 	## This function expects an IP address in string form as an argument. It
 	## returns all UIDs for host objects which contain that IP, one per line.
-	mgmt_cli -s sessionFile_$CMA.txt \
+	mgmt_cli --port "${apiPort}" \
+		-s sessionFile_$CMA.txt \
 		--format json \
 		show objects \
 		ip-only true \
@@ -112,7 +116,8 @@ getHostUIDsUsingIP() {
 dereferenceObjectUID() {
 	objectUIDToFind=$1
 	debug1 "dereferenceObjectUID: Dereferencing ${objectUIDToFind}."
-	foundObject="$(mgmt_cli -s sessionFile_$CMA.txt \
+	foundObject="$(mgmt_cli --port "${apiPort}" \
+		-s sessionFile_$CMA.txt \
 		--format json \
 		show object \
 		uid "${objectUIDToFind}" \
@@ -313,11 +318,11 @@ masterOutput() {
 
 scanMDS() {
 	debug1 "Entering scanMDS."
-	mgmt_cli login read-only true -r true > sessionFile.txt
-	MDSDomains=( $(mgmt_cli -s sessionFile.txt --format json show domains | jq -c ".objects[].uid" | sed 's/"//g') )
+	mgmt_cli --port "${apiPort}" login read-only true -r true > sessionFile.txt
+	MDSDomains=( $(mgmt_cli --port "${apiPort}" -s sessionFile.txt --format json show domains | jq -c ".objects[].uid" | sed 's/"//g') )
 	for CMA in "${MDSDomains[@]}"; do
 		debug1 "Scanning CMA $CMA."
-		mgmt_cli login read-only true domain $CMA -r true > sessionFile_$CMA.txt
+		mgmt_cli --port "${apiPort}" login read-only true domain $CMA -r true > sessionFile_$CMA.txt
 		foundRules=$(findRulesUsingIPs)
 		foundRules=$(dereferenceAllObjectsInRules "${foundRules}")
 		masterOutput "${foundRules}"
@@ -331,7 +336,7 @@ scanSmartCenter() {
 	## CMA or a SmartCenter with no modification and no further conditionals.
 	debug1 "Entering scanSmartCenter."
 	CMA="SmartCenter"
-	mgmt_cli login read-only true -r true > sessionFile_$CMA.txt
+	mgmt_cli --port "${apiPort}" login read-only true -r true > sessionFile_$CMA.txt
 	foundRules=$(findRulesUsingIPs)
 	foundRules=$(dereferenceAllObjectsInRules "${foundRules}")
 	masterOutput "${foundRules}"
@@ -342,18 +347,18 @@ cleanupMDS() {
 	debug1 "Entering cleanupMDS."
 	for CMA in "${MDSDomains[@]}"; do
 		debug1 "Cleaning up CMA: $CMA"
-		mgmt_cli -s sessionFile_$CMA.txt logout>/dev/null
+		mgmt_cli --port "${apiPort}" -s sessionFile_$CMA.txt logout>/dev/null
 		/bin/rm sessionFile_$CMA.txt
 		done
 	debug1 "Cleaning up MDS."
-	mgmt_cli -s sessionFile.txt logout>/dev/null
+	mgmt_cli --port "${apiPort}" -s sessionFile.txt logout>/dev/null
 	/bin/rm sessionFile.txt
 	/bin/rm objects.sed
 	}
 
 cleanupSmartCenter() {
 	debug1 "Entering cleanupSmartCenter."
-	mgmt_cli -s sessionFile_$CMA.txt logout>/dev/null
+	mgmt_cli --port "${apiPort}" -s sessionFile_$CMA.txt logout>/dev/null
 	/bin/rm sessionFile_$CMA.txt
 	/bin/rm objects.sed
 	}
@@ -364,13 +369,14 @@ if [ $# -eq 0 ]; then
 	fi
 
 declare -i ipsToRulesDebug=0
+declare -i apiPort=443
 ipList=()
 outFilePrettyJSON=""
 outFileCompactJSON=""
 outFileQDCSV=""
 declare -i stdoutPrettyJSON=0
 
-while getopts ":dhJ:j:c:" options; do
+while getopts ":dhp:J:j:c:" options; do
 	case "$options" in
 	d) # Increase debug level, up to twice.
 		ipsToRulesDebug+=1
@@ -378,6 +384,9 @@ while getopts ":dhJ:j:c:" options; do
 	h) # Print usage information.
 		printUsage
 		exit 0
+		;;
+	p) # Specify the port to use for API connections. Default is 443.
+		apiPort="${OPTARG}"
 		;;
 	J) # Write pretty-print JSON output to <file>.
 		outFilePrettyJSON="${OPTARG}"
@@ -420,6 +429,7 @@ if [ "${outFileQDCSV}" != "" ]; then
 shift "$((OPTIND-1))" # Remove all the options getopts has handled.
 
 debug1 "Debug level set to ${ipsToRulesDebug}."
+debug1 "Using port ${apiPort} to connect to API."
 
 ipList=( $(echo "${@}" | sort -u) )
 if [ "${#ipList[@]}" -eq 0 ]; then
