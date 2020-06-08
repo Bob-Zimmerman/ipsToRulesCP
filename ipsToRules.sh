@@ -318,11 +318,23 @@ masterOutput() {
 
 scanMDS() {
 	debug1 "Entering scanMDS."
-	mgmt_cli --port "${apiPort}" login read-only true -r true > sessionFile.txt
-	MDSDomains=( $(mgmt_cli --port "${apiPort}" -s sessionFile.txt --format json show domains | jq -c ".objects[].uid" | sed 's/"//g') )
+	mgmt_cli --port "${apiPort}" \
+		login \
+		read-only true \
+		-r true > sessionFile.txt
+	MDSDomains=( $(mgmt_cli --port "${apiPort}" \
+		-s sessionFile.txt \
+		--format json \
+		show domains \
+		| jq -c ".objects[].uid" \
+		| sed 's/"//g') )
 	for CMA in "${MDSDomains[@]}"; do
 		debug1 "Scanning CMA $CMA."
-		mgmt_cli --port "${apiPort}" login read-only true domain $CMA -r true > sessionFile_$CMA.txt
+		mgmt_cli --port "${apiPort}" \
+			login \
+			read-only true \
+			domain $CMA \
+			-r true > sessionFile_$CMA.txt
 		foundRules=$(findRulesUsingIPs)
 		foundRules=$(dereferenceAllObjectsInRules "${foundRules}")
 		masterOutput "${foundRules}"
@@ -336,7 +348,10 @@ scanSmartCenter() {
 	## CMA or a SmartCenter with no modification and no further conditionals.
 	debug1 "Entering scanSmartCenter."
 	CMA="SmartCenter"
-	mgmt_cli --port "${apiPort}" login read-only true -r true > sessionFile_$CMA.txt
+	mgmt_cli --port "${apiPort}" \
+		login \
+		read-only true \
+		-r true > sessionFile_$CMA.txt
 	foundRules=$(findRulesUsingIPs)
 	foundRules=$(dereferenceAllObjectsInRules "${foundRules}")
 	masterOutput "${foundRules}"
@@ -347,18 +362,24 @@ cleanupMDS() {
 	debug1 "Entering cleanupMDS."
 	for CMA in "${MDSDomains[@]}"; do
 		debug1 "Cleaning up CMA: $CMA"
-		mgmt_cli --port "${apiPort}" -s sessionFile_$CMA.txt logout>/dev/null
+		mgmt_cli --port "${apiPort}" \
+			-s sessionFile_$CMA.txt \
+			logout>/dev/null
 		/bin/rm sessionFile_$CMA.txt
 		done
 	debug1 "Cleaning up MDS."
-	mgmt_cli --port "${apiPort}" -s sessionFile.txt logout>/dev/null
+	mgmt_cli --port "${apiPort}" \
+		-s sessionFile.txt \
+		logout>/dev/null
 	/bin/rm sessionFile.txt
 	/bin/rm objects.sed
 	}
 
 cleanupSmartCenter() {
 	debug1 "Entering cleanupSmartCenter."
-	mgmt_cli --port "${apiPort}" -s sessionFile_$CMA.txt logout>/dev/null
+	mgmt_cli --port "${apiPort}" \
+		-s sessionFile_$CMA.txt \
+		logout>/dev/null
 	/bin/rm sessionFile_$CMA.txt
 	/bin/rm objects.sed
 	}
