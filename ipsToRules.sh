@@ -284,15 +284,20 @@ masterOutput() {
 	ruleJSON=$1
 	if [ "${outFilePrettyJSON}" != "" ]; then
 		debug1 "Emitting pretty JSON."
-		echo "${ruleJSON}" | jq . >> "${outFilePrettyJSON}"
+		echo "${ruleJSON}" \
+		| jq . \
+		>> "${outFilePrettyJSON}"
 		fi
 	if [ "${outFileCompactJSON}" != "" ]; then
 		debug1 "Emitting compact JSON."
-		echo "${ruleJSON}" | jq -c . >> "${outFileCompactJSON}"
+		echo "${ruleJSON}" \
+		| jq -c . \
+		>> "${outFileCompactJSON}"
 		fi
 	if [ "${outFileQDCSV}" != "" ]; then
 		debug1 "Emitting quote-delimited CSV."
-		echo "${ruleJSON}" | jq -c "$csvRuleRepresentation" \
+		echo "${ruleJSON}" \
+		| jq -c "$csvRuleRepresentation" \
 		| sed "s${unitSeparator}\"${unitSeparator}${unitSeparator}g" \
 		| sed "s${unitSeparator}^{${unitSeparator}\"${unitSeparator}" \
 		| sed -E "s${unitSeparator},enabled:(true|false),name:${unitSeparator}\",\"\1\",\"${unitSeparator}" \
@@ -312,7 +317,8 @@ masterOutput() {
 		fi
 	if [ "${stdoutPrettyJSON}" -eq 1 ]; then
 		debug1 "Emitting pretty-print JSON to STDOUT."
-		echo "${ruleJSON}" | jq .
+		echo "${ruleJSON}" \
+		| jq .
 		fi
 	}
 
