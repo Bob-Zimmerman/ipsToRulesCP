@@ -46,6 +46,23 @@ service:[.service[].name],
 serviceNegate:.serviceNegate,
 action:.action}"
 
+# For jq 1.5, replace the above with this:
+# # This gives you tab-separated values within a field, comma-separated
+# # fields within a row. Later, I use 'tr' to translate tabs to newlines.
+# csvRuleRepresentation="[([.domainUID,
+# .layerUID,
+# .ruleUID]|@tsv),
+# .enabled,
+# .name,
+# .comments,
+# ([.source[]|.name]|@tsv),
+# .sourceNegate,
+# ([.destination[].name]|@tsv),
+# .destinationNegate,
+# ([.service[].name]|@tsv),
+# .serviceNegate,
+# .action]|@csv"
+
 unitSeparator=$(awk 'BEGIN {print "\037"}')
 
 
@@ -314,6 +331,11 @@ masterOutput() {
 		| sed -E "s${unitSeparator}([^\"]),([^\"])${unitSeparator}\1~\2${unitSeparator}g" \
 		| tr '~' '\n' \
 		>> "${outFileQDCSV}"
+# For jq 1.5, replace the above with this:
+# 		echo "${ruleJSON}" \
+# 		| jq -r "$csvRuleRepresentation" \
+# 		| tr '\t' '\n' \
+# 		>> "${outFileQDCSV}"
 		fi
 	if [ "${stdoutPrettyJSON}" -eq 1 ]; then
 		debug1 "Emitting pretty-print JSON to STDOUT."
