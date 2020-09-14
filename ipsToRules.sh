@@ -131,6 +131,14 @@ getHostUIDsUsingIP() {
 	}
 
 dereferenceObjectUID() {
+	## This function expects an object UID. It returns a sed script to replace
+	## that UID with a block of information about the object.
+	## For example, a host's UID is replaced with the host's name, comments,
+	## type, and IP address. The idea is to give useful fields without also
+	## including empty fields like the network mask.
+	## 
+	## The sed script emitted by this function could be run directly, but I
+	## save it to a file and run it in a single big sed invocation.
 	objectUIDToFind=$1
 	debug1 "dereferenceObjectUID: Dereferencing ${objectUIDToFind}."
 	foundObject="$(mgmt_cli --port "${apiPort}" \
@@ -239,16 +247,24 @@ dereferenceObjectUID() {
 	}
 
 dereferenceAllObjectsInRules() {
+	## This function accepts a block of JSON rules with UIDs in all the fields,
+	## looks up all the objects, replaces their UIDs with data about them, and
+	## returns the result.
 	ruleSet=$(echo "${1}" | jq .)
 
+	## While grep can find UUIDs in the rules ...
 	while [ "$(echo "${ruleSet}" | egrep '^\s+.[-0-9a-fA-F]{36}.')" != "" ]; do
 		debug1 "dereferenceAllObjectsInRules: Running dereference loop."
-		objectUIDsToLookup=( $(echo "${ruleSet}" | egrep '^\s+.[-0-9a-fA-F]{36}.' | sed 's#,##g') )
 
+		## Get a list of the UUIDs, look them up, and build a sed script.
+		objectUIDsToLookup=( $(echo "${ruleSet}" | egrep '^\s+.[-0-9a-fA-F]{36}.' | sed 's#,##g') )
 		for objectToFind in "${objectUIDsToLookup[@]}"; do
 			dereferenceObjectUID "${objectToFind}" >> objects.sed
 			done
 
+		## Once we have the sed script, run it to replace those UUIDs. Then we
+		## test the 'while' condition again to dereference members in any
+		## groups we just found.
 		ruleSet=$(echo "${ruleSet}" | jq . | sed -f objects.sed | jq .)
 		done
 
@@ -256,12 +272,15 @@ dereferenceAllObjectsInRules() {
 	}
 
 findRulesUsingIPs() {
+	## This function doesn't take any input. It expects there to be a global
+	## "ipList" variable with the list of IPs you want it to find.
 	debug1 "Entering findRulesUsingIPs."
+
+	## First, we iterate through the list of IPs given above. We search for
+	## each one, then record all the UUIDs of host objects which have exactly
+	## that IP.
 	objectUIDs=()
 	for ipToFind in "${ipList[@]}"; do
-		## Here, we iterate through the list of IPs given above. We search for
-		## each one, then record all the UUIDs of host objects which have
-		## exactly that IP.
 		debug1 "Looking for $ipToFind."
 		ipToFindUIDs=( $(getHostUIDsUsingIP "$ipToFind") )
 		debug2 "Found ${!ipToFindUIDs[@]} UIDs: ${ipToFindUIDs[@]}"
@@ -273,10 +292,11 @@ findRulesUsingIPs() {
 		for element in "${objectUIDs[@]}"; do echo "$element" >&2; done
 		echo "" >&2
 		fi
+
+	## Now that we have the UUIDs of the objects we want to find, we look up
+	## each one and find the rules which reference it.
 	ruleUIDs=()
 	for object in "${objectUIDs[@]}"; do
-		## Here, we go through all the object UIDs we just found and find all
-		## the rules referencing those objects.
 		debug1 "Finding where $object is used."
 		objectRuleUIDs=( $(getRuleUIDsUsingObjectUID "$object") )
 		debug2 "Found ${!objectRuleUIDs[@]} UIDs: ${objectRuleUIDs[@]}"
@@ -289,8 +309,8 @@ findRulesUsingIPs() {
 		echo "" >&2
 		fi
 
+	## Finally, it's time to get and print the rules.
 	for rule in "${ruleUIDs[@]}"; do
-		## Finally, it's time to get and print the rules.
 		echo "$(getRuleUsingUID $rule)"
 		done
 	}
@@ -350,6 +370,9 @@ scanMDS() {
 		login \
 		read-only true \
 		-r true > sessionFile.txt
+
+	## Here, I build a list of the CMAs, then I log in and run the main
+	## functions for each one.
 	MDSDomains=( $(mgmt_cli --port "${apiPort}" \
 		-s sessionFile.txt \
 		--format json \
