@@ -511,7 +511,7 @@ if [ "${#ipList[@]}" -eq 0 ]; then
 	fi
 debug1 "IPs we are about to search for: ${ipList[@]}"
 
-if [ ! $(cpprod_util FwIsFirewallMgmt) ]; then
+if [ $(cpprod_util FwIsFirewallMgmt) == "0" ]; then
 	echo "ERROR: This script must be run on a SmartCenter, but cpprod_util says this is not one." >&2
 	exit 1
 	fi
